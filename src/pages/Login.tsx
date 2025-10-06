@@ -38,7 +38,7 @@ const Login: React.FC = () => {
         const token = 'jwt-secure-token-demo';
         
         dispatch(authSuccess({ user, token }));
-        navigate('/report');
+        navigate('/dashboard');
       } else {
         dispatch(authFailure('Invalid email or password. Please try again.'));
       }
@@ -50,6 +50,17 @@ const Login: React.FC = () => {
 
   return (
     <AuthLayout>
+      {/* Back to Landing Button */}
+      <div className="mb-4">
+        <button
+          onClick={() => navigate('/')}
+          className="flex items-center text-slate-600 hover:text-emerald-600 transition-colors duration-200"
+        >
+          <i className="fa-solid fa-arrow-left mr-2"></i>
+          Back to Landing
+        </button>
+      </div>
+      
       <h2 className="text-2xl font-bold text-gray-800 text-center mb-6 flex items-center justify-center">
         <IoLogIn className="h-6 w-6 mr-2 text-indigo-500" />
         Agent Sign In
