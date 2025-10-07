@@ -19,6 +19,8 @@ const AICopilot: React.FC<InvestigatorChatProps> = ({ claimId }) => {
   const { token } = useAppSelector((state) => state.auth);
   const [availableClaims, setAvailableClaims] = useState<any[]>([]);
   const [selectedClaimId, setSelectedClaimId] = useState<string>(claimId || '');
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [parentMessageId, setParentMessageId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -67,9 +69,39 @@ const AICopilot: React.FC<InvestigatorChatProps> = ({ claimId }) => {
     fetchClaims();
   }, [token, selectedClaimId]);
 
+  // Reset conversation when claim changes
+  useEffect(() => {
+    if (selectedClaimId) {
+      setConversationId(null);
+      setParentMessageId(null);
+    }
+  }, [selectedClaimId]);
+
+  // Fetch available claims
+  useEffect(() => {
+    const fetchClaims = async () => {
+      if (!token) return;
+      
+      try {
+        const claims = await apiService.getClaims(token);
+        const claimsArray = Array.isArray(claims) ? claims : [];
+        setAvailableClaims(claimsArray);
+        
+        // Set first claim as default if no claim is selected
+        if (!selectedClaimId && claimsArray.length > 0) {
+          setSelectedClaimId(claimsArray[0].id);
+        }
+      } catch (error) {
+        console.error('Failed to fetch claims:', error);
+      }
+    };
+
+    fetchClaims();
+  }, [token, selectedClaimId]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!userInput.trim() || isLoading) return;
+    if (!userInput.trim() || isLoading || !selectedClaimId || !token) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -83,7 +115,25 @@ const AICopilot: React.FC<InvestigatorChatProps> = ({ claimId }) => {
     setIsLoading(true);
 
     try {
-      const response = await apiService.investigate(selectedClaimId, userMessage.text, token || '');
+      // Start conversation if not already started
+      let currentConversationId = conversationId;
+      let currentParentMessageId = parentMessageId;
+      
+      if (!currentConversationId) {
+        const conversationResponse = await apiService.startConversation(selectedClaimId, token);
+        currentConversationId = conversationResponse.conversationId;
+        currentParentMessageId = conversationResponse.systemMessageId;
+        setConversationId(currentConversationId);
+        setParentMessageId(currentParentMessageId);
+      }
+
+      const response = await apiService.investigate(
+        selectedClaimId, 
+        userMessage.text, 
+        token,
+        currentConversationId,
+        currentParentMessageId
+      );
 
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -93,6 +143,11 @@ const AICopilot: React.FC<InvestigatorChatProps> = ({ claimId }) => {
       };
 
       setMessages(prev => [...prev, aiMessage]);
+      
+      // Update parent message ID for next query
+      if (response.systemMessageId) {
+        setParentMessageId(response.systemMessageId);
+      }
     } catch (error: any) {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),

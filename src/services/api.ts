@@ -100,15 +100,34 @@ export const apiService = {
     return data;
   },
 
-  // AI Co-pilot endpoint
-  investigate: async (claimId: string, query: string, token: string) => {
+  // Start conversation with Amazon Q
+  startConversation: async (claimId: string, token: string) => {
+    const response = await fetch(`${API_BASE_URL}/investigate/${claimId}/start-conversation`, {
+      method: 'POST',
+      headers: { 
+        'Authorization': `Bearer ${token}` 
+      }
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.detail || 'Failed to start conversation');
+    }
+    return data;
+  },
+
+  // AI Co-pilot endpoint with conversation context
+  investigate: async (claimId: string, query: string, token: string, conversationId?: string, parentMessageId?: string) => {
     const response = await fetch(`${API_BASE_URL}/investigate/${claimId}/query`, {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}` 
       },
-      body: JSON.stringify({ query })
+      body: JSON.stringify({ 
+        query,
+        ...(conversationId && { conversationId }),
+        ...(parentMessageId && { parentMessageId })
+      })
     });
     const data = await response.json();
     if (!response.ok) {
