@@ -1,6 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-const FormStepTwo = () => {
+interface FormStepTwoProps {
+  claimData: { fileCount: number; additionalInfo: string; files: File[] };
+  setClaimData: (data: { fileCount: number; additionalInfo: string; files: File[] }) => void;
+}
+
+const FormStepTwo = ({ claimData, setClaimData }: FormStepTwoProps) => {
   const [files, setFiles] = useState<File[]>([]);
   const [dragActive, setDragActive] = useState(false);
 
@@ -28,6 +33,10 @@ const FormStepTwo = () => {
       setFiles(prev => [...prev, ...Array.from(e.target.files!)]);
     }
   };
+
+  useEffect(() => {
+    setClaimData(prev => ({ ...prev, fileCount: files.length, files }));
+  }, [files, setClaimData]);
 
   const removeFile = (index: number) => {
     setFiles(prev => prev.filter((_, i) => i !== index));

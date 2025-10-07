@@ -1,6 +1,8 @@
 import { useAppDispatch, useAppSelector } from "../redux/store";
 import { setIsOpen } from "../components/features/Modal/toggleModalSlice";
 import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { apiService } from '../services/api';
 
 import MultiStepFormModal from "../components/common/Modal/MultiStepFormModal";
 
@@ -8,7 +10,30 @@ const Claims = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const isOpen = useAppSelector((state) => state.modal.isOpen);
-  const { results } = useAppSelector((state) => state.search);
+  const { token } = useAppSelector((state) => state.auth);
+  const [claims, setClaims] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchClaims = async () => {
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+      
+      try {
+        const data = await apiService.getClaims(token);
+        setClaims(Array.isArray(data) ? data : []);
+      } catch (error: any) {
+        console.error('Failed to fetch claims:', error);
+        setClaims([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchClaims();
+  }, [token, isOpen]);
   
   const getStatusBadge = (status: string) => {
     const baseClasses = "px-3 py-1 rounded-full text-xs font-semibold";
@@ -64,42 +89,57 @@ const Claims = () => {
             </tr>
           </thead>
           <tbody>
-            {results.map((data, index) => (
-              <tr 
-                key={index} 
-                onClick={() => navigate(`/claims/${data.ClaimID}`)}
-                className="border-b border-slate-700 hover:bg-slate-700 cursor-pointer transition-colors"
-              >
-                <td className="p-5 text-white">{data.Claimant}</td>
-                <td className="p-5">
-                  <span className="font-mono text-sm text-slate-400">
-                    {data.ClaimID}
-                  </span>
-                </td>
-                <td className="p-5">
-                  <span className="font-mono text-sm text-slate-400">
-                    {data.PolicyNumber}
-                  </span>
-                </td>
-                <td className="p-5 text-white">{data.date}</td>
-                <td className="p-5">
-                  <span className={getStatusBadge(data.status)}>
-                    {data.status}
-                  </span>
-                </td>
-                <td className="p-5">
-                  <div className="flex items-center gap-4">
-                    <span className="text-white">{data.riskScore}%</span>
-                    <div className="w-24 h-2 bg-slate-600 rounded-full">
-                      <div 
-                        className={`h-full rounded-full ${getRiskBar(data.riskScore)}`}
-                        style={{ width: `${data.riskScore}%` }}
-                      ></div>
-                    </div>
-                  </div>
+            {loading ? (
+              <tr>
+                <td colSpan={6} className="p-8 text-center">
+                  <div className="animate-spin w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full mx-auto mb-2"></div>
+                  <p className="text-slate-400">Loading claims...</p>
                 </td>
               </tr>
-            ))}
+            ) : claims.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="p-8 text-center">
+                  <p className="text-slate-400">No claims found. Create your first claim!</p>
+                </td>
+              </tr>
+            ) : (
+              claims.map((claim, index) => (
+                <tr 
+                  key={claim.id || index} 
+                  onClick={() => navigate(`/claims/${claim.id}`)}
+                  className="border-b border-slate-700 hover:bg-slate-700 cursor-pointer transition-colors"
+                >
+                  <td className="p-5 text-white">{claim.adjuster_id || 'N/A'}</td>
+                  <td className="p-5">
+                    <span className="font-mono text-sm text-slate-400">
+                      {claim.id}
+                    </span>
+                  </td>
+                  <td className="p-5">
+                    <span className="font-mono text-sm text-slate-400">
+                      N/A
+                    </span>
+                  </td>
+                  <td className="p-5 text-white">{new Date(claim.created_at).toLocaleDateString()}</td>
+                  <td className="p-5">
+                    <span className={getStatusBadge(claim.status === 'upload_in_progress' ? 'Pending' : 'Analyzed')}>
+                      {claim.status === 'upload_in_progress' ? 'Pending' : 'Analyzed'}
+                    </span>
+                  </td>
+                  <td className="p-5">
+                    <div className="flex items-center gap-4">
+                      <span className="text-white">{claim.fraud_risk_score || 0}%</span>
+                      <div className="w-24 h-2 bg-slate-600 rounded-full">
+                        <div 
+                          className={`h-full rounded-full ${getRiskBar(claim.fraud_risk_score || 0)}`}
+                          style={{ width: `${claim.fraud_risk_score || 0}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

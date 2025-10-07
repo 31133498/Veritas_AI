@@ -1,243 +1,286 @@
-# Veritas_AI
+# Veritas AI - Insurance Claims Fraud Detection Platform
 
-## Project Description
+## 🚀 Overview
 
-Veritas AI (Claim adjustment platform).
+Veritas AI is an AI-powered insurance claims fraud detection platform that accelerates and authenticates the claim verification process for insurance companies. Built with React, TypeScript, and Tailwind CSS, it provides a comprehensive solution for claim analysis, fraud detection, and investigative workflows.
 
-## Tools used
+## ✨ Features
+
+### 🔐 Authentication System
+- User registration and login
+- JWT token-based authentication
+- Persistent user sessions with localStorage
+- Personalized user experience
+
+### 📊 Dashboard
+- Real-time claims statistics
+- Quick action buttons for common tasks
+- Recent claims overview
+- Personalized welcome interface
+
+### 📋 Claims Management
+- **Multi-step claim creation** with detailed form validation
+- **Drag-and-drop file upload** with S3 integration
+- **Real-time upload progress** tracking
+- **Claims listing** with filtering and sorting
+- **Detailed claim analysis** pages
+
+### 🤖 AI-Powered Analysis
+- **Automated fraud detection** with risk scoring
+- **Evidence analysis** including image metadata examination
+- **Timeline inconsistency detection**
+- **Pattern matching** against historical fraud cases
+- **Comprehensive fraud risk reports**
+
+### 🕵️ AI Co-pilot (Investigator's Cockpit)
+- **Interactive chat interface** for claim investigation
+- **Real-time AI responses** for investigative queries
+- **Claim-specific analysis** with contextual insights
+- **Quick action buttons** for common investigation tasks
+
+### 🎨 Modern UI/UX
+- **Dark theme** with professional design
+- **Responsive layout** for all screen sizes
+- **Interactive components** with smooth animations
+- **Accessibility-compliant** interface
+
+## 🛠️ Tech Stack
 
 ### Frontend
+- **React 18** - Modern React with hooks
+- **TypeScript** - Type-safe development
+- **Tailwind CSS** - Utility-first styling
+- **Redux Toolkit** - State management
+- **React Router** - Client-side routing
+- **Chart.js** - Data visualization
 
-- React.js
-- Tailwind CSS
-- Typescript
+### Backend Integration
+- **REST API** integration with Python FastAPI backend
+- **JWT Authentication** with Bearer tokens
+- **AWS S3** file upload with presigned URLs
+- **Real-time data** fetching and updates
 
-### Backend
+## 📁 Project Structure
 
-- Python
+```
+Veritas_AI/
+├── public/                     # Static assets
+├── src/
+│   ├── components/            # Reusable UI components
+│   │   ├── common/           # Shared components (Modal, Icons, etc.)
+│   │   └── features/         # Feature-specific components
+│   ├── pages/                # Main application pages
+│   │   ├── Landing.tsx       # Marketing landing page
+│   │   ├── Dashboard.tsx     # Main dashboard
+│   │   ├── Claims.tsx        # Claims management
+│   │   ├── ClaimDetail.tsx   # Individual claim analysis
+│   │   ├── AICopilot.tsx     # AI investigation interface
+│   │   ├── Login.tsx         # Authentication
+│   │   └── Signup.tsx        # User registration
+│   ├── layouts/              # Page layout components
+│   │   └── DashboardLayout.tsx
+│   ├── services/             # API integration
+│   │   └── api.ts            # Centralized API service
+│   ├── redux/                # State management
+│   │   ├── store.ts          # Redux store configuration
+│   │   └── features/         # Redux slices
+│   ├── types/                # TypeScript type definitions
+│   └── styles/               # Global styles
+├── package.json              # Dependencies and scripts
+├── tailwind.config.js        # Tailwind CSS configuration
+├── tsconfig.json            # TypeScript configuration
+└── vite.config.ts           # Vite build configuration
+```
 
-## Table of Contents
+## 🚀 Getting Started
 
-- About
-- Features
-- Usage (Installation & Setup)
-- Project Structure
-- Explanation of Key folders and files
-- Design Approach
-- Contributions
-
-## About
-
-Veritas AI is an AI-powered adjustment claim platform that fastens and authenticates the process of Claim verification in Insurance companies. With Veritas AI, insurance firms can now verify customers' claim faster and more acurately.
-
-## Features
-
-- Navigation (sidebar, topbar)
-- Dashboard overview
-- Claims table (with filtering/sorting)
-- Claim details view
-- Claim creation flow
-- Reports & Analytics (charts, insights)
-- Notifications system
-- Settings page
-
-## Usage (installation and Setup)
+### Prerequisites
+- Node.js 18+ 
+- npm or yarn
+- Git
 
 ### Installation
 
-1 **Clone the Repository**
-git clone https://github.com/your-username/your-repo.git
-cd your-repo
+1. **Clone the repository**
+```bash
+git clone https://github.com/your-username/veritas-ai.git
+cd veritas-ai
+```
 
 2. **Install dependencies**
-   npm install
+```bash
+npm install
+```
 
-3. **Setup environment variables**
-   create a .env file the root directory and add the required variables
-   NEXT_PUBLIC_API_URL=your_api_url
-   DATABASE_URL=your_database_url
+3. **Environment Setup**
+Create a `.env` file in the root directory:
+```env
+VITE_API_BASE_URL=https://veritas-ai-backend-db28.onrender.com/api/v1
+```
 
-### usage
+4. **Start development server**
+```bash
+npm run dev
+```
 
-1. **Start the development server**
-   npm run dev
-   This app will running at https://localhost:3000
+The application will be available at `http://localhost:5173`
 
-2. **Build for production**
-   npm run build
+### Build for Production
 
-3. **Run production server**
-   npm run start
+```bash
+npm run build
+npm run preview
+```
 
-## Project Structure
+## 🔧 Configuration
 
-my-project/
-├── public/
-│ ├── assets/ # Static images, fonts, icons, etc.
-│ └── favicon.ico
-│
-├── src/
-│ ├── components/ # Reusable v UI components
-│ │ ├── Button/
-│ │ │ ├── Button.tsx
-│ │ │ └── Button.module.css (or .scss / styled)  
-│ │ ├── Card/
-│ │ ├── Table/
-│ │ └── ...  
-│ │
-│ ├── features/ # Feature-based modules / domains
-│ │ ├── claims/
-│ │ │ ├── ClaimList.tsx
-│ │ │ ├── ClaimDetail.tsx
-│ │ │ └── types.ts
-│ │ ├── reports/
-│ │ ├── settings/
-│ │ └── auth/
-│ │
-│ ├── layouts/ # Page layout components (e.g. sidebar + header)
-│ │ ├── DashboardLayout.tsx
-│ │ └── AuthLayout.tsx
-│ │
-│ ├── pages/ # Pages or routes (if using Next.js / file-based routing)
-│ │ ├── index.tsx
-│ │ ├── claims/
-│ │ │ ├── index.tsx
-│ │ │ └── [claimId].tsx
-│ │ ├── reports.tsx
-│ │ └── settings.tsx
-│ │
-│ ├── hooks/ # Custom React hooks
-│ │ └── useFetchClaims.ts
-│ │
-│ ├── context/ # React Contexts or global state providers
-│ │ └── AuthContext.tsx
-│ │
-│ ├── services/ # API calls / data fetching
-│ │ └── claimsApi.ts
-│ │
-│ ├── utils/ # Helper functions, formatters, etc.
-│ │ └── dateUtils.ts
-│ │
-│ ├── styles/ # Global style files (e.g. tailwind, resets)
-│ │ ├── globals.css
-│ │ └── tailwind.css
-│ │
-│ ├── types/ # Shared TypeScript types
-│ │ └── index.ts
-│ │
-│ ├── App.tsx Root component (if not using Next.js)
-| └── App.css
-│
-├── tailwind.config.js
-├── postcss.config.js
-├── tsconfig.json
-├── package.json
-├── README.md
-└── vite.config.ts # Or next.config.js / webpack configs
+### Tailwind CSS v4
+The project uses Tailwind CSS v4 with the new configuration:
+- Import: `@import "tailwindcss"` in CSS files
+- PostCSS plugin: `@tailwindcss/postcss`
 
-## Explanation of Key Folders & Files
+### API Integration
+All API calls are centralized in `src/services/api.ts`:
+- Authentication endpoints
+- Claims CRUD operations
+- File upload to S3
+- AI investigation queries
 
-| Folder / File                            | Purpose                                                                                                                     |
-| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `public/`                                | Contains static assets served as-is (images, icons, etc.)                                                                   |
-| `src/components/`                        | Reusable UI components (buttons, cards, table rows, etc.)                                                                   |
-| `src/features/`                          | Domain-specific modules (claims, reports, settings). Contains components, hooks, types, state logic related to that domain. |
-| `src/layouts/`                           | Higher-order components that wrap pages (e.g. common header, sidebar)                                                       |
-| `src/pages/`                             | Top-level routes/pages (for concatenating into the application navigation)                                                  |
-| `src/hooks/`                             | Custom hooks used across the app                                                                                            |
-| `src/context/`                           | React Context providers for global state (e.g. user auth, theme)                                                            |
-| `src/services/`                          | API client logic, fetch / axios calls, endpoints                                                                            |
-| `src/utils/`                             | Pure functions, formatters, helper utilities                                                                                |
-| `src/types/`                             | TypeScript types and interfaces shared across modules                                                                       |
-| `tailwind.config.js / postcss.config.js` | Configuration for TailwindCSS and PostCSS                                                                                   |
-| `tsconfig.json`                          | TypeScript compiler settings                                                                                                |
-| `.env`                                   | Environment variables (API endpoints, keys)                                                                                 |
-| `vite.config.ts`                         | Configuration for Vite (if using Vite)                                                                                      |
-| `README.md`                              | Project documentation                                                                                                       |
+## 📱 User Workflows
 
-## Dsign Approach
+### 1. Claim Submission Flow
+1. **Login/Register** - User authentication
+2. **Create Claim** - Multi-step form with evidence upload
+3. **File Upload** - Drag-and-drop with progress tracking
+4. **Analysis Trigger** - Immediate "Run Analysis" button
+5. **Results Display** - Fraud risk score and detailed report
 
-### Atoms (fundamentals you’ll reuse everywhere)
+### 2. Investigation Workflow
+1. **Claims Dashboard** - Overview of all claims
+2. **Claim Selection** - Choose specific claim for analysis
+3. **AI Co-pilot** - Interactive investigation interface
+4. **Evidence Analysis** - AI-powered insights and recommendations
 
-- Typography: Heading, Subtitle, Body, Caption
-- Colors & theme tokens (primary, secondary, danger, success, neutral, backgrounds, borders)
-- Buttons: primary, secondary, icon button, disabled state
-- Inputs: text field, textarea, dropdown, checkbox, radio, toggle switch
-- Badges/Tags: status indicators (e.g. pending, approved, rejected)
-- Icons & Avatars
-- Spacing system (margins, paddings)
+## 🔐 Authentication Flow
 
-### Molecules (small combinations)
+The application uses JWT-based authentication:
+- **Login**: OAuth2 password flow with form data
+- **Token Storage**: Secure localStorage persistence
+- **Auto-refresh**: Automatic token validation
+- **Protected Routes**: Route-level authentication guards
 
-- Search bar (input + search button)
-- Filter control (dropdown + button group)
-- Form field with label + input + error state
-- Table row (cells + status badge + action buttons)
-- Claim card summary (avatar + name + claim status)
-- Pagination control
-- Button groups / tab switcher
+## 📊 State Management
 
-### Organisms (sections of UI)
+Redux Toolkit is used for state management:
+- **Auth Slice**: User authentication and profile data
+- **Modal Slice**: UI state for modals and forms
+- **Persistent Storage**: User data persistence across sessions
 
-- Navbar / Sidebar (logo, navigation links, profile menu)
-- Header bar (page title, breadcrumbs, actions)
-- Claims table (rows, header, filters, pagination)
-- Reports dashboard (charts, KPIs, filters)
-- Claim creation form (multi-step form with validation)
-- Settings panel (user info, preferences, notifications toggle)
-- Notifications dropdown/toast system
+## 🎨 Design System
 
-### Templates (page-level structure)
+### Color Palette
+- **Background**: `slate-900` (Dark theme)
+- **Surfaces**: `slate-800`, `slate-700`
+- **Primary**: `emerald-500/600` (Actions and highlights)
+- **Text**: `white`, `slate-300`, `slate-400`
+- **Status Colors**: `red-400` (High risk), `yellow-400` (Medium), `green-400` (Low)
 
-- Dashboard template (sidebar + header + content area)
-- All Claims template (filter section + claims table + pagination)
-- New Claim flow template (stepper + form sections)
-- Reports template (charts + filters + summary cards)
-- Settings template (sections for profile, security, preferences)
+### Typography
+- **Headers**: Bold, large text for page titles
+- **Body**: Clean, readable text with proper contrast
+- **Code**: Monospace font for claim IDs and technical data
 
-### Pages (real data & content)
+## 🚀 Deployment
 
-- All Claims Page (lists all claims, with filters/search/pagination)
-- New Claim Page (multi-step form to submit a claim)
-- Reports & Analytics Page (charts, downloadable reports)
-- Settings Page (profile management, security, notifications)
-- Login Page (if authentication is required later)
+### Vercel Deployment
+The project is configured for Vercel deployment:
+- **Build Command**: `npm run build`
+- **Output Directory**: `dist`
+- **Node Version**: 18+
 
-### Project Journey (from start to finish)
+### Environment Variables
+Set the following in your deployment platform:
+```
+VITE_API_BASE_URL=your_backend_url
+```
 
-- Setup: repo structure, design tokens, theme, global styles
-- Atoms: build all basic UI elements first
-- Molecules: compose atoms into usable mini components
-- Organisms: build big UI sections (tables, navbars, forms)
-- Templates: define the layouts for each page
-- Pages: plug real data into templates, connect APIs
-- Polish: accessibility, responsiveness, performanc
-- Deploy & iterate: feedback, refinements, new features
+## 🧪 Testing
 
-## Contributions
+### Manual Testing
+- Use the provided HTML test client for API validation
+- Test all user workflows end-to-end
+- Verify file upload functionality with various file types
 
-### We welcome contributions! To contribute to this project, please follow these steps:
+### Key Test Scenarios
+1. **Authentication**: Login/logout/registration flows
+2. **Claim Creation**: Multi-step form with file uploads
+3. **Analysis**: Trigger analysis and view results
+4. **AI Co-pilot**: Interactive investigation queries
 
-- Fork the repository
-- Click the "Fork" button at the top right of this page.
-- Clone your fork locally
-  git clone https://github.com/your-username/your-repo.git
-  cd your-repo
-- Create a new branch
-  git checkout -b feature/your-feature-name
-- Make your changes
-- Follow the coding style and project structure.
-- Commit your changes
-  git commit -m "Add: your detailed commit message"
-- Push your branch
-  git push origin feature/your-feature-name
-- Open a Pull Request
-- Go to the original repository and Click New Pull Request.
-- Describe your changes clearly.
+## 🔧 API Endpoints
 
-### Contribution guidelines.
+### Authentication
+- `POST /auth/signup` - User registration
+- `POST /auth/token` - User login (OAuth2 form data)
 
-- Use clear, descriptive commit messages.
-- Keep pull requests focused (one feature/bug fix at a time).
-- Write tests for new features if applicable.
-- Check existing issues or open a new one before starting major work.
+### Claims Management
+- `GET /claims/` - List all claims
+- `POST /claims/` - Create new claim
+- `GET /claims/{id}` - Get specific claim
+- `POST /claims/{id}/trigger-analysis` - Run fraud analysis
+
+### AI Investigation
+- `POST /investigate/{claim_id}/query` - AI investigation queries
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+1. **Build Errors**
+   - Ensure all dependencies are in `dependencies` (not `devDependencies`)
+   - Check for case-sensitive import paths
+
+2. **File Upload Issues**
+   - Verify S3 presigned URL format
+   - Check file upload order (fields first, then file)
+
+3. **Authentication Problems**
+   - Clear localStorage and retry login
+   - Verify API endpoint URLs
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/your-feature`
+3. Commit changes: `git commit -m "Add your feature"`
+4. Push to branch: `git push origin feature/your-feature`
+5. Open a Pull Request
+
+### Coding Standards
+- Use TypeScript for type safety
+- Follow React hooks patterns
+- Maintain consistent component structure
+- Write descriptive commit messages
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **Backend API**: FastAPI Python backend with AI/ML integration
+- **UI Framework**: React with TypeScript for robust development
+- **Styling**: Tailwind CSS for rapid, consistent styling
+- **State Management**: Redux Toolkit for predictable state updates
+- **File Storage**: AWS S3 for secure file handling
+
+## 📞 Support
+
+For support and questions:
+- Create an issue in the GitHub repository
+- Contact the development team
+- Check the troubleshooting section above
+
+---
+
+**Veritas AI** - Transforming insurance fraud detection with AI-powered analysis and investigation tools.
