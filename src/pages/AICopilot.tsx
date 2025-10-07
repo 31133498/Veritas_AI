@@ -131,8 +131,8 @@ const AICopilot: React.FC<InvestigatorChatProps> = ({ claimId }) => {
         selectedClaimId, 
         userMessage.text, 
         token,
-        currentConversationId,
-        currentParentMessageId
+        currentConversationId || undefined,
+        currentParentMessageId || undefined
       );
 
       const aiMessage: Message = {

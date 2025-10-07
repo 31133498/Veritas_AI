@@ -35,8 +35,8 @@ const FormStepTwo = ({ claimData, setClaimData }: FormStepTwoProps) => {
   };
 
   useEffect(() => {
-    setClaimData(prev => ({ ...prev, fileCount: files.length, files }));
-  }, [files, setClaimData]);
+    setClaimData({ fileCount: files.length, additionalInfo: claimData.additionalInfo, files });
+  }, [files, setClaimData, claimData.additionalInfo]);
 
   const removeFile = (index: number) => {
     setFiles(prev => prev.filter((_, i) => i !== index));
