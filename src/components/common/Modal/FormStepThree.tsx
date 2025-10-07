@@ -1,4 +1,8 @@
-const FormStepThree = () => {
+interface FormStepThreeProps {
+  claimId: string | null;
+}
+
+const FormStepThree = ({ claimId }: FormStepThreeProps) => {
   return (
     <div className="space-y-6 text-center">
       <div className="mb-8">
@@ -11,7 +15,7 @@ const FormStepThree = () => {
         <div className="grid grid-cols-2 gap-4 text-left">
           <div>
             <p className="text-slate-400 text-sm">Claim ID</p>
-            <p className="text-white font-mono">CLM-2024-{Math.floor(Math.random() * 10000).toString().padStart(4, '0')}</p>
+            <p className="text-white font-mono">{claimId || 'Generating...'}</p>
           </div>
           <div>
             <p className="text-slate-400 text-sm">Status</p>
@@ -35,7 +39,7 @@ const FormStepThree = () => {
           <i className="fa-solid fa-info-circle text-blue-400"></i>
           <div>
             <p className="text-white font-medium">Next Steps</p>
-            <p className="text-slate-400 text-sm">AI analysis will begin automatically. You'll be notified when the fraud risk assessment is complete.</p>
+            <p className="text-slate-400 text-sm">Forensic analysis pipeline has been triggered. Bedrock AI is now processing all uploaded documents for fraud detection.</p>
           </div>
         </div>
       </div>

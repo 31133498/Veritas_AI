@@ -14,8 +14,13 @@ interface InvestigatorChatProps {
   claimId?: string;
 }
 
-const AICopilot: React.FC<InvestigatorChatProps> = ({ claimId = 'CLM-2024-0001' }) => {
+const AICopilot: React.FC<InvestigatorChatProps> = ({ claimId }) => {
   const user = useAppSelector((state) => state.auth.user);
+  const { token } = useAppSelector((state) => state.auth);
+  const [availableClaims, setAvailableClaims] = useState<any[]>([]);
+  const [selectedClaimId, setSelectedClaimId] = useState<string>(claimId || '');
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [parentMessageId, setParentMessageId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -42,9 +47,61 @@ const AICopilot: React.FC<InvestigatorChatProps> = ({ claimId = 'CLM-2024-0001' 
     }
   }, [userInput]);
 
+  // Fetch available claims
+  useEffect(() => {
+    const fetchClaims = async () => {
+      if (!token) return;
+      
+      try {
+        const claims = await apiService.getClaims(token);
+        const claimsArray = Array.isArray(claims) ? claims : [];
+        setAvailableClaims(claimsArray);
+        
+        // Set first claim as default if no claim is selected
+        if (!selectedClaimId && claimsArray.length > 0) {
+          setSelectedClaimId(claimsArray[0].id);
+        }
+      } catch (error) {
+        console.error('Failed to fetch claims:', error);
+      }
+    };
+
+    fetchClaims();
+  }, [token, selectedClaimId]);
+
+  // Reset conversation when claim changes
+  useEffect(() => {
+    if (selectedClaimId) {
+      setConversationId(null);
+      setParentMessageId(null);
+    }
+  }, [selectedClaimId]);
+
+  // Fetch available claims
+  useEffect(() => {
+    const fetchClaims = async () => {
+      if (!token) return;
+      
+      try {
+        const claims = await apiService.getClaims(token);
+        const claimsArray = Array.isArray(claims) ? claims : [];
+        setAvailableClaims(claimsArray);
+        
+        // Set first claim as default if no claim is selected
+        if (!selectedClaimId && claimsArray.length > 0) {
+          setSelectedClaimId(claimsArray[0].id);
+        }
+      } catch (error) {
+        console.error('Failed to fetch claims:', error);
+      }
+    };
+
+    fetchClaims();
+  }, [token, selectedClaimId]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!userInput.trim() || isLoading) return;
+    if (!userInput.trim() || isLoading || !selectedClaimId || !token) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -58,35 +115,48 @@ const AICopilot: React.FC<InvestigatorChatProps> = ({ claimId = 'CLM-2024-0001' 
     setIsLoading(true);
 
     try {
-      // Simulate API call - replace with actual endpoint
-      const token = localStorage.getItem('token') || '';
-      const response = await apiService.investigate(claimId, userMessage.text, token);
-
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        text: response.response || 'Based on my analysis of the claim data, I found several key insights that warrant further investigation...',
-        sender: 'ai',
-        timestamp: new Date().toLocaleTimeString()
-      };
-
-      setMessages(prev => [...prev, aiMessage]);
-    } catch (error) {
-      // Mock response for demo purposes
-      const mockResponses = [
-        'Based on the evidence analysis, I found timeline inconsistencies in the medical reports. The treatment dates precede the accident date by 3 days.',
-        'The image metadata shows the photo was taken 2 weeks before the reported incident date. This suggests potential evidence tampering.',
-        'Cross-referencing the license plate with our database shows this vehicle was previously reported in a similar claim 6 months ago.',
-        'The witness statements contain contradictory details about weather conditions and time of day that require further investigation.'
-      ];
+      // Start conversation if not already started
+      let currentConversationId = conversationId;
+      let currentParentMessageId = parentMessageId;
       
+      if (!currentConversationId) {
+        const conversationResponse = await apiService.startConversation(selectedClaimId, token);
+        currentConversationId = conversationResponse.conversationId;
+        currentParentMessageId = conversationResponse.systemMessageId;
+        setConversationId(currentConversationId);
+        setParentMessageId(currentParentMessageId);
+      }
+
+      const response = await apiService.investigate(
+        selectedClaimId, 
+        userMessage.text, 
+        token,
+        currentConversationId || undefined,
+        currentParentMessageId || undefined
+      );
+
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: mockResponses[Math.floor(Math.random() * mockResponses.length)],
+        text: response.answer,
         sender: 'ai',
         timestamp: new Date().toLocaleTimeString()
       };
 
       setMessages(prev => [...prev, aiMessage]);
+      
+      // Update parent message ID for next query
+      if (response.systemMessageId) {
+        setParentMessageId(response.systemMessageId);
+      }
+    } catch (error: any) {
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        text: error.message || 'Failed to get AI response',
+        sender: 'error',
+        timestamp: new Date().toLocaleTimeString()
+      };
+
+      setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
@@ -113,8 +183,30 @@ const AICopilot: React.FC<InvestigatorChatProps> = ({ claimId = 'CLM-2024-0001' 
             <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
             <span className="text-sm text-slate-400">AI Assistant Online</span>
           </div>
-          <div className="text-sm text-slate-400">Claim ID: {claimId}</div>
+          <div className="text-sm text-slate-400">Selected Claim: {selectedClaimId}</div>
           <div className="text-sm text-slate-400">Investigator: {user?.firstName || 'User'}</div>
+        </div>
+      </div>
+
+      {/* Claim Selector */}
+      <div className="max-w-4xl mx-auto mb-6">
+        <div className="bg-slate-800 p-4 rounded-xl border border-slate-600">
+          <label className="block text-sm font-medium text-slate-300 mb-2">Select Claim to Investigate</label>
+          <select 
+            value={selectedClaimId}
+            onChange={(e) => setSelectedClaimId(e.target.value)}
+            className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          >
+            {availableClaims.length === 0 ? (
+              <option value="">Loading claims...</option>
+            ) : (
+              availableClaims.map((claim) => (
+                <option key={claim.id} value={claim.id}>
+                  {claim.id} - {claim.status.replace('_', ' ')} - Risk: {claim.fraud_risk_score || 'Pending'}%
+                </option>
+              ))
+            )}
+          </select>
         </div>
       </div>
 
@@ -180,7 +272,7 @@ const AICopilot: React.FC<InvestigatorChatProps> = ({ claimId = 'CLM-2024-0001' 
                   value={userInput}
                   onChange={(e) => setUserInput(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Ask a follow-up question about the analysis..."
+                  placeholder={selectedClaimId ? "Ask about the selected claim..." : "Select a claim first..."}
                   className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none min-h-[48px] max-h-32"
                   rows={1}
                 />
@@ -190,7 +282,7 @@ const AICopilot: React.FC<InvestigatorChatProps> = ({ claimId = 'CLM-2024-0001' 
               </div>
               <button
                 type="submit"
-                disabled={!userInput.trim() || isLoading}
+                disabled={!userInput.trim() || isLoading || !selectedClaimId}
                 className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white rounded-xl font-semibold transition-colors flex items-center gap-2"
               >
                 <i className="fa-solid fa-paper-plane"></i>
